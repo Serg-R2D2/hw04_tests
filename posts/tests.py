@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.shortcuts import reverse
 from django.test import TestCase
 from django.test import Client
@@ -52,7 +53,7 @@ class TestMethods(TestCase):
                     ('post', {'username': self.user.username, 'post_id': self.post.id})
         )
         for name, kwargs in urls:
-            response = self.client(reverse(name, kwargs=kwargs))
+            response = self.client.get(reverse(name, kwargs=kwargs)) #Ошибка "list indices must be integers or slices, not type" не понял, как поправить
             if Paginator in response.context:
                 self.assertEqual(response.context['Page'].user, self.user)
                 self.assertEqual(response.context['Page'].text, self.text)
