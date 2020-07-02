@@ -46,8 +46,13 @@ class TestMethods(TestCase):
     def test_DispPost(self):
         """После публикации поста новая запись появляется на главной странице сайта (index), """
         """на персональной странице пользователя (profile), и на отдельной странице поста (post)"""
-        def check_content(self):
-            response = self.client.get("")
+        urls = (
+            ('index', {}),
+                ('profile', {'username': self.user.username}),
+                    ('post', {'username': self.user.username, 'post_id': self.post.id})
+        )
+        for name, kwargs in urls:
+            response = self.client(reverse(name, kwargs=kwargs))
             if Paginator in response.context:
                 self.assertEqual(response.context['Page'].user, self.user)
                 self.assertEqual(response.context['Page'].text, self.text)
@@ -57,17 +62,6 @@ class TestMethods(TestCase):
                 self.assertEqual(response.context['post'].text, self.text)
                 self.assertEqual(response.context['post'].group, self.group.id)
 
-
-        response = self.client.get("")
-        self.assertContains(response, self.post.text, count=1)
-        self.assertContains(response, self.post.group.id)
-        profile_url = reverse('profile', args=(self.post.author,))
-        response1 = self.client.get(profile_url)
-        self.assertContains(response, self.post.text, count=1)
-        post_url = reverse('post', args=(self.post.author, self.post.id,))
-        response2 = self.client.get(post_url)
-        self.assertContains(response, self.post.text, count=1)
-
     def test_UpdPost(self):
         """Возможность редактирования поста авторизованным пользователем"""
         """Проверка изменений на всех страницах"""
@@ -75,4 +69,3 @@ class TestMethods(TestCase):
         self.post.text = "Update"
         self.post.save(update_fields=['text'])
         self.test_DispPost()
-
