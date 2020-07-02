@@ -30,7 +30,7 @@ class TestMethods(TestCase):
         #post_url = reverse('post', args=(self.post.author, self.post.id,))
         #response = self.client.get(post_url)
         response = self.client.get("/new/", follow=True)
-        self.assertEqual(response.status_code, 200, msg='Публикация не возможна')
+        self.assertEqual(response.status_code, 200, msg='Публикация невозможна')
 
     def test_NonAuthPost(self):
         """Невозможность публикации неавторизованным пользователем (проверка редиректа)"""
@@ -43,10 +43,10 @@ class TestMethods(TestCase):
         response = self.client.get("")
         self.assertContains(response, self.post.text, count=1)
         profile_url = reverse('profile', args=(self.post.author,))
-        response1 = self.client.get(post_url1)
+        response1 = self.client.get(profile_url)
         self.assertContains(response, self.post.text, count=1)
         post_url = reverse('post', args=(self.post.author, self.post.id,))
-        response2 = self.client.get(post_url2)
+        response2 = self.client.get(post_url)
         self.assertContains(response, self.post.text, count=1)
 
     def test_UpdPost(self):
