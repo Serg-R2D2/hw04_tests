@@ -10,15 +10,14 @@ from .models import Post, Group
 def index(request):
     """Возвращает десять новых постов на каждой странице"""
     post = Post.objects.all()
-    paginator = Paginator(post, 10)  # показывать по 10 записей на странице.
-    page_number = request.GET.get('page')  # переменная в URL с номером запрошенной страницы
-    page = paginator.get_page(page_number)  # получить записи с нужным смещением
+    paginator = Paginator(post, 10)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
     return render(
             request,
             'index.html',
             {'page': page, 'paginator': paginator,}
             )
-
 
 def group_posts(request, slug):
     """Возвращает десять последних постов указанной темы на каждой странице"""
@@ -32,7 +31,6 @@ def group_posts(request, slug):
         "group.html", 
         {'page': page, 'paginator': paginator}
         )
-
 
 @login_required
 def new_post(request): 
@@ -48,7 +46,6 @@ def new_post(request):
     form = PostForm()
     return render(request, 'new_post.html', {'form': form})
 
-
 def profile(request, username):
     """Вывод профайла пользователя социальной сети"""
     author = get_object_or_404(User, username=username)
@@ -59,12 +56,14 @@ def profile(request, username):
     return render(
         request,
         'profile.html', 
-        {'page': page,
+        {
+            'page': page,
             'paginator': paginator,
-                'author': author}
-        )
- 
- 
+            'author': author,
+            'post_num': posts.count()
+        }
+    )
+
 def post_view(request, username, post_id):
     """Вывод конкретного поста пользователя социальной сети"""
     author = get_object_or_404(User, username=username)
@@ -73,10 +72,13 @@ def post_view(request, username, post_id):
     return render(
         request, 
         'post.html', 
-        {'post': post,
+        {
+            'post': post,
             'author': author,
-                'post_num': post_num}
-        )
+            'post_num': post_num
+        }
+    )
+
 
 @login_required
 def post_edit(request, username, post_id):
@@ -89,5 +91,11 @@ def post_edit(request, username, post_id):
     if form.is_valid():
         post.save()
         return redirect(reverse("post", 
-        kwargs={'username': username, 'post_id': post.id}))
-    return render(request, 'new_post.html', {'form': form, 'is_edit': True, 'post': post})
+    kwargs={'username': username, 'post_id': post.id}))
+    return render(request, 'new_post.html', 
+        {
+            'form': form, 
+            'is_edit': True, 
+            'post': post
+        }
+    )
