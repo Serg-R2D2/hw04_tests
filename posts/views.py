@@ -7,6 +7,7 @@ from .forms import PostForm
 from .models import Post, Group
 
 
+
 def index(request):
     """Возвращает десять новых постов на каждой странице"""
     post = Post.objects.all()
@@ -19,6 +20,7 @@ def index(request):
             {'page': page, 'paginator': paginator,}
             )
 
+
 def group_posts(request, slug):
     """Возвращает десять последних постов указанной темы на каждой странице"""
     group = get_object_or_404(Group, slug=slug)
@@ -29,8 +31,13 @@ def group_posts(request, slug):
     return render(
         request, 
         "group.html", 
-        {'page': page, 'paginator': paginator, 'group': group}
+        {
+            'page': page, 
+            'paginator': paginator, 
+            'group': group
+        }
         )
+
 
 @login_required
 def new_post(request): 
@@ -45,6 +52,7 @@ def new_post(request):
         return render(request, 'new_post.html', {'form': form})
     form = PostForm()
     return render(request, 'new_post.html', {'form': form})
+
 
 def profile(request, username):
     """Вывод профайла пользователя социальной сети"""
@@ -63,6 +71,7 @@ def profile(request, username):
             'post_num': posts.count()
         }
     )
+
 
 def post_view(request, username, post_id):
     """Вывод конкретного поста пользователя социальной сети"""
@@ -90,9 +99,19 @@ def post_edit(request, username, post_id):
     form = PostForm(request.POST or None, instance=post)
     if form.is_valid():
         post.save()
-        return redirect(reverse("post", 
-    kwargs={'username': username, 'post_id': post.id}))
-    return render(request, 'new_post.html', 
+        return redirect(
+            reverse(
+                "post", 
+                kwargs=
+                    {
+                    'username': username, 
+                    'post_id': post.id
+                    }
+                )
+            )
+    return render(
+        request, 
+        'new_post.html', 
         {
             'form': form, 
             'is_edit': True, 
