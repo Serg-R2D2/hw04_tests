@@ -12,7 +12,7 @@
           <div class="card-header">Новая запись</div>
           {% endif %}
           <div class="card-body">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% for field in form %}
                         <div class="form-group row" aria-required={% if field.required %}"true"{% else %}"false"{% endif %}>

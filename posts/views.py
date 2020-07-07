@@ -96,7 +96,7 @@ def post_edit(request, username, post_id):
     if post.author != request.user:
         return redirect(reverse("post", 
             kwargs={'username': username, 'post_id': post.id}))
-    form = PostForm(request.POST or None, instance=post)
+    form = PostForm(request.POST or None, files=request.FILES or None, instance=post)
     if form.is_valid():
         post.save()
         return redirect(
@@ -118,3 +118,17 @@ def post_edit(request, username, post_id):
             'post': post
         }
     )
+
+
+def page_not_found(request, exception):
+    # Переменная exception содержит отладочную информацию 
+    return render(
+        request, 
+        "misc/404.html", 
+        {"path": request.path}, 
+        status=404
+    )
+
+
+def server_error(request):
+    return render(request, "misc/500.html", status=500)

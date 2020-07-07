@@ -6,7 +6,6 @@ from django.test import Client
 from .models import Post, Group 
 
 
-
 class TestMethods(TestCase):
     def check_post_data(self, urls, text, group, author):
         for name, kwargs in urls:
@@ -109,7 +108,7 @@ class TestMethods(TestCase):
                         "Но ты не просишь с уважением, не предлагаешь дружбу, "+
                         "даже не думаешь обратиться ко мне — крёстный.",  
                         author=self.user, 
-                        group = self.group
+                        group=self.group
                         ) 
         entrance = self.client.force_login(self.user)
         response = self.client.post(
@@ -134,4 +133,7 @@ class TestMethods(TestCase):
         group = self.post.group 
         author = self.post.author
         self.check_post_data(urls, text, group, author)
-# thank you for your help and patience
+
+    def test_404(self):
+        response = self.client.get("/page_do_not_exist/", follow=True)
+        self.assertEqual(response.status_code, 404)

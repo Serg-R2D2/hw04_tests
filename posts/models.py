@@ -36,6 +36,7 @@ class Post(models.Model):
         blank=True, null=True, 
         verbose_name='Сообщество'
         )
+    image = models.ImageField(upload_to='posts/', blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Посты'
