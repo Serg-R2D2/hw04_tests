@@ -1,3 +1,6 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.images import ImageFile
+from django.core.files import File
 from django.contrib.auth.models import User 
 from django.core.paginator import Paginator 
 from django.shortcuts import reverse 
@@ -137,3 +140,60 @@ class TestMethods(TestCase):
     def test_404(self):
         response = self.client.get("/page_do_not_exist/", follow=True)
         self.assertEqual(response.status_code, 404)
+
+
+class TestImage(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='User', password=12345)
+        self.group = Group.objects.create( 
+            slug="test4posts",  
+            title="Test Group", 
+            description="Test Descr." 
+            )
+        self.post = Post.objects.create(
+            author=self.user,
+            text='text',
+            group=self.group
+            )
+        self.client.force_login(self.user)
+        self.image_path = 'media/posts/TI/test_image.jpg'
+        self.non_image_path = 'posts/tests.py'
+        self.errormessage = f'Загрузите правильное изображение. Фа\
+            йл, который вы загрузили, поврежден или не является изображением.'
+
+    def test_img(self):
+        with open(self.image_path, 'rb') as img:
+            response = self.client.post(
+                reverse("post_edit", kwargs={'username': self.user.username, 'post_id': self.post.id}),
+                {
+                    'image': img,
+                    'text': 'edited text with correct file'
+                }
+            )
+        urls = ( 
+        ('index', {}),
+        ('group_posts', {'slug': self.group.slug}),
+        ('profile', {'username': self.user.username}), 
+        ('post', {'username': self.user.username, 'post_id': self.post.id})
+        )
+        for name, kwargs in urls:
+            response = self.client.get(reverse(name, kwargs=kwargs))
+            self.assertContains(response, '<img')
+
+    def test_nonimg(self):
+        with open(self.non_image_path, 'rb') as non_img:
+            response = self.client.post(reverse(
+                'post_edit',
+                kwargs={
+                    'username': self.user.username,
+                    'post_id': self.post.id
+                    }),
+                {
+                    'image': non_img,
+                    'text': 'edited text with wrong file'
+                }
+                )
+            self.assertFormError(
+                response,
+                'form',
+                field='image', errors=self.errormessage)

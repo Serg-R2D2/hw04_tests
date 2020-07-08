@@ -43,7 +43,7 @@ def group_posts(request, slug):
 def new_post(request): 
     """Сохраняет новый пост после валидации формы"""
     if request.method == 'POST': 
-        form = PostForm(request.POST) 
+        form = PostForm(request.POST, files=request.FILES or None) 
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
